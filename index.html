@@ -610,7 +610,11 @@
             ]
         };
 
-        let map = L.map('map').setView([10.8505, 76.2711], 7);
+        let map = L.map('map', {
+            minZoom: 7,
+            maxBounds: [[8.0, 74.5], [13.0, 77.5]],
+            maxBoundsViscosity: 1.0
+        }).setView([10.8505, 76.2711], 7);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
