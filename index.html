@@ -27,10 +27,22 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
+        @media (max-width: 768px) {
+            .header {
+                height: 80px;
+            }
+        }
+
         .controls {
             background: white;
             padding: 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                padding: 10px;
+            }
         }
 
         .control-group {
@@ -40,6 +52,12 @@
             gap: 20px;
             flex-wrap: wrap;
             align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .control-group {
+                gap: 10px;
+            }
         }
 
         .control-section {
@@ -55,10 +73,32 @@
             letter-spacing: 1px;
         }
 
+        @media (max-width: 768px) {
+            .control-section h3 {
+                font-size: 11px;
+                margin-bottom: 5px;
+            }
+        }
+
         .button-group {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .button-group {
+                display: none;
+            }
+            
+            .control-section:first-child {
+                display: none;
+            }
+            
+            .control-section {
+                flex: 1;
+                min-width: 100%;
+            }
         }
 
         .btn {
@@ -97,11 +137,27 @@
             font-weight: 500;
         }
 
+        @media (max-width: 768px) {
+            select {
+                padding: 10px;
+                font-size: 12px;
+            }
+        }
+
         #map {
             width: calc(100% - 400px);
             height: calc(100vh - 300px);
             min-height: 500px;
             float: right;
+        }
+
+        @media (max-width: 768px) {
+            #map {
+                width: 100%;
+                height: calc(100vh - 200px);
+                min-height: 400px;
+                float: none;
+            }
         }
 
         .results-panel {
@@ -112,6 +168,12 @@
             background: white;
             overflow-y: auto;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .results-panel {
+                display: none;
+            }
         }
 
         .results-table {
