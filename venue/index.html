@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kerala School Kalolsavam 2026 - Venue Map</title>
+    <title>2026 തൃശ്ശൂർ കലോത്സവവേദി ഭൂപടം</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
@@ -65,16 +65,85 @@
             }
         }
 
-        #map {
-            width: 100%;
+        .map-container {
+            overflow: hidden;
+        }
+
+        .venues-panel {
+            width: 400px;
             height: calc(100vh - 220px);
             min-height: 400px;
+            float: left;
+            background: white;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .venues-panel {
+                display: none;
+            }
+        }
+
+        .venues-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .venues-table thead {
+            position: sticky;
+            top: 0;
+            background: #667eea;
+            color: white;
+            z-index: 10;
+        }
+
+        .venues-table th {
+            padding: 12px 8px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            border-bottom: 2px solid #764ba2;
+        }
+
+        .venues-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 12px;
+        }
+
+        .venues-table tbody tr:hover {
+            background: #f8f9ff;
+            cursor: pointer;
+        }
+
+        .venue-name-cell {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .venue-number-cell {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .place-cell {
+            color: #666;
+        }
+
+        #map {
+            width: calc(100% - 400px);
+            height: calc(100vh - 220px);
+            min-height: 400px;
+            float: right;
         }
 
         @media (max-width: 768px) {
             #map {
+                width: 100%;
                 height: calc(100vh - 150px);
                 min-height: 300px;
+                float: none;
             }
         }
 
@@ -200,7 +269,7 @@
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 24px;
+            font-size: 18px;
             font-weight: bold;
             margin: 0 auto 10px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
@@ -210,7 +279,7 @@
             .venue-icon {
                 width: 40px;
                 height: 40px;
-                font-size: 18px;
+                font-size: 14px;
             }
         }
     </style>
@@ -223,32 +292,51 @@
         <p>Kerala State School Kalolsavam 2026 - Venue Map | Thrissur</p>
     </div>
 
-    <div id="map"></div>
+    <div class="map-container">
+        <div class="venues-panel">
+            <table class="venues-table">
+                <thead>
+                    <tr>
+                        <th>വേദി നമ്പർ</th>
+                        <th>വേദിയുടെ പേര്</th>
+                        <th>സ്ഥലം</th>
+                    </tr>
+                </thead>
+                <tbody id="venuesTableBody">
+                </tbody>
+            </table>
+        </div>
+        <div id="map"></div>
+    </div>
 
     <script>
-        // Read and process CSV data
         async function loadVenueData() {
             try {
-                const csvData = await window.fs.readFile('Kerala State School Kalolsavam 2026 Thrissur Kalothsvam Result Map  Stage Map.csv.csv', { encoding: 'utf8' });
+                const csvData = await window.fs.readFile('mapkalothsavamtest.csv', { encoding: 'utf8' });
                 
-                // Parse CSV
                 const lines = csvData.trim().split('\n');
-                const headers = lines[0].split(',');
-                
                 const venues = [];
                 
                 for (let i = 1; i < lines.length; i++) {
-                    const values = lines[i].split(',');
-                    if (values.length >= 4) {
-                        venues.push({
-                            venueName: values[0]?.trim() || '',
-                            venueNumber: values[1]?.trim() || '',
-                            place: values[2]?.trim() || '',
-                            location: [
-                                parseFloat(values[3]?.trim()) || 10.5276,
-                                parseFloat(values[4]?.trim()) || 76.2144
-                            ]
-                        });
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    
+                    const values = line.split(',');
+                    if (values.length >= 5) {
+                        const venueName = values[0]?.trim() || '';
+                        const venueNumber = values[1]?.trim() || '';
+                        const place = values[2]?.trim() || '';
+                        const lat = parseFloat(values[3]?.trim());
+                        const lng = parseFloat(values[4]?.trim());
+                        
+                        if (!isNaN(lat) && !isNaN(lng)) {
+                            venues.push({
+                                venueName,
+                                venueNumber,
+                                place,
+                                location: [lat, lng]
+                            });
+                        }
                     }
                 }
                 
@@ -292,7 +380,22 @@
         async function initMap() {
             const venues = await loadVenueData();
             
+            const tableBody = document.getElementById('venuesTableBody');
+            tableBody.innerHTML = '';
+            
             venues.forEach((venue, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="venue-number-cell">${venue.venueNumber}</td>
+                    <td class="venue-name-cell">${venue.venueName}</td>
+                    <td class="place-cell">${venue.place}</td>
+                `;
+                row.addEventListener('click', () => {
+                    map.setView(venue.location, 15);
+                    markers[index].openPopup();
+                });
+                tableBody.appendChild(row);
+                
                 const marker = L.marker(venue.location, {
                     icon: L.divIcon({
                         className: 'custom-marker-container',
